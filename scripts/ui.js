@@ -6,6 +6,7 @@ window.onload = async function () {
     console.warn("No token, user might have denied permissions");
   }
 
+  // Fetch task lists when the button is clicked
   document
     .querySelector("#getTaskListsButton")
     .addEventListener("click", async () => {
@@ -18,6 +19,7 @@ window.onload = async function () {
       }
     });
 
+  // Event listener for group selection change, update tasks display when group changes
   document.querySelector("#groupNames").addEventListener("change", async () => {
     console.log("Group changed");
     try {
@@ -29,24 +31,36 @@ window.onload = async function () {
       let selectedListId = select.options[select.selectedIndex].id;
 
       const taskData = await getTasksFromList(token, selectedListId);
+      let button = document.querySelector("#loadMoreTasksButton");
       if (taskData.nextPageToken) {
         nextPageToken = taskData.nextPageToken;
+        button.disabled = false; // Enable button if there are more pages
+      } else {
+        nextPageToken = null; // No more pages
+        button.disabled = true;
       }
 
       renderTasks(taskData);
+
     } catch (err) {
       console.error("Error getting tasks: ", err);
     }
   });
 
+  // Load more tasks when button is clicked
   document
     .querySelector("#loadMoreTasksButton")
     .addEventListener("click", async () => {
       try {
+        console.log(nextPageToken);
         let select = document.querySelector("#groupNames");
         let selectedListId = select.options[select.selectedIndex].id;
 
-        const taskData = await getTasksFromList(token, selectedListId, nextPageToken);
+        const taskData = await getTasksFromList(
+          token,
+          selectedListId,
+          nextPageToken
+        );
         if (taskData.nextPageToken) {
           nextPageToken = taskData.nextPageToken;
         }
@@ -81,4 +95,11 @@ function renderTasks(tasks) {
     p.classList.add("taskName");
     listOfTasksDiv.appendChild(p);
   });
+  updateTaskCount()
+}
+
+function updateTaskCount(){
+  const taskCount = document.querySelector("#taskCount");
+  const listOfTasksDiv = document.querySelector("#listOfTasks");
+  taskCount.textContent = `(${listOfTasksDiv.children.length})`;
 }
