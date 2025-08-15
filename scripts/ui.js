@@ -16,24 +16,22 @@ window.onload = async function () {
       }
     });
 
-  document
-    .querySelector("#getTasksButton")
-    .addEventListener("click", async () => {
-      try {
-        let select = document.querySelector("#groupNames");
-        let selectedListId = select.options[select.selectedIndex].id;
+  document.querySelector("#groupNames").addEventListener("change", async () => {
+    console.log("Group changed");
+    try {
+      let select = document.querySelector("#groupNames");
+      let selectedListId = select.options[select.selectedIndex].id;
 
-        const taskData = await getTasksFromList(token, selectedListId);
+      const taskData = await getTasksFromList(token, selectedListId);
 
-        renderTasks(taskData);
-      } catch (err) {
-        console.error("Error getting tasks: ", err);
-      }
-    });
+      renderTasks(taskData);
+    } catch (err) {
+      console.error("Error getting tasks: ", err);
+    }
+  });
 };
 
 function renderTaskLists(taskLists) {
-  const nameDiv = document.querySelector("#listOfNames");
   const nameSelect = document.querySelector("#groupNames");
   nameSelect.innerHTML = "";
 
@@ -44,6 +42,7 @@ function renderTaskLists(taskLists) {
     option.id = group.id;
     nameSelect.append(option);
   });
+  nameSelect.dispatchEvent(new Event("change"));
 }
 
 function renderTasks(tasks) {
