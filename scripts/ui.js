@@ -31,17 +31,15 @@ window.onload = async function () {
       let selectedListId = select.options[select.selectedIndex].id;
 
       const taskData = await getTasksFromList(token, selectedListId);
-      let button = document.querySelector("#loadMoreTasksButton");
       if (taskData.nextPageToken) {
         nextPageToken = taskData.nextPageToken;
-        button.disabled = false; // Enable button if there are more pages
+        enableLoadMoreButton();
       } else {
         nextPageToken = null; // No more pages
-        button.disabled = true;
+        disableLoadMoreButton();
       }
 
       renderTasks(taskData);
-
     } catch (err) {
       console.error("Error getting tasks: ", err);
     }
@@ -51,6 +49,7 @@ window.onload = async function () {
   document
     .querySelector("#loadMoreTasksButton")
     .addEventListener("click", async () => {
+
       try {
         console.log(nextPageToken);
         let select = document.querySelector("#groupNames");
@@ -61,8 +60,14 @@ window.onload = async function () {
           selectedListId,
           nextPageToken
         );
+
+        console.log(taskData);
         if (taskData.nextPageToken) {
+          console.log("Next page token:", taskData.nextPageToken);
           nextPageToken = taskData.nextPageToken;
+        } else {
+          nextPageToken = null;
+          disableLoadMoreButton();
         }
 
         renderTasks(taskData);
@@ -95,11 +100,23 @@ function renderTasks(tasks) {
     p.classList.add("taskName");
     listOfTasksDiv.appendChild(p);
   });
-  updateTaskCount()
+  updateTaskCount();
 }
 
-function updateTaskCount(){
+function updateTaskCount() {
   const taskCount = document.querySelector("#taskCount");
   const listOfTasksDiv = document.querySelector("#listOfTasks");
   taskCount.textContent = `(${listOfTasksDiv.children.length})`;
+}
+
+function disableLoadMoreButton() {
+  const button = document.querySelector("#loadMoreTasksButton");
+  button.disabled = true;
+  button.textContent = "No more tasks";
+}
+
+function enableLoadMoreButton() {
+  const button = document.querySelector("#loadMoreTasksButton");
+  button.disabled = false;
+  button.textContent = "Load More Tasks";
 }
