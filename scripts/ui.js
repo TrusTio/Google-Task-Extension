@@ -49,7 +49,6 @@ window.onload = async function () {
   document
     .querySelector("#loadMoreTasksButton")
     .addEventListener("click", async () => {
-
       try {
         console.log(nextPageToken);
         let select = document.querySelector("#groupNames");
@@ -74,6 +73,15 @@ window.onload = async function () {
       } catch (err) {
         console.error("Error getting more tasks: ", err);
       }
+    });
+
+  // Load all tasks when button is clicked
+  document
+    .querySelector("#loadAllTasksButton")
+    .addEventListener("click", async () => {
+      loadAllTasks(token).catch((err) => {
+        console.error("Error loading all tasks: ", err);
+      });
     });
 };
 
@@ -101,6 +109,22 @@ function renderTasks(tasks) {
     listOfTasksDiv.appendChild(p);
   });
   updateTaskCount();
+}
+
+async function loadAllTasks(token) {
+  let select = document.querySelector("#groupNames");
+  let selectedListId = select.options[select.selectedIndex].id;
+  do {
+    const data = await await getTasksFromList(
+      token,
+      selectedListId,
+      nextPageToken
+    );
+    renderTasks(data || []);
+    await new Promise(requestAnimationFrame);
+
+    nextPageToken = data.nextPageToken || null;
+  } while (nextPageToken);
 }
 
 function updateTaskCount() {
