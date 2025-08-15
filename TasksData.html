@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Test Extension</title>
+    <link rel="stylesheet" href="styling/styles.css" />
+    <script type="text/javascript" src="scripts/oauth.js" defer></script>
+    <script type="text/javascript" src="scripts/tasksApi.js" defer></script>
+    <script type="text/javascript" src="scripts/ui.js" defer></script>
+  </head>
+
+  <body>
+    <h1>Test Extension</h1>
+    <button id="getTaskListsButton">Get all Task lists</button>
+
+    <label for="groupNames"> Choose list group: </label>
+    <select name="groupNames" id="groupNames"></select>
+
+    <div id="listOfNames">
+      <strong> List of Tasks names: </strong>
+    </div>
+
+    <button id ="getTasksButton"> Get All Tasks for list: </button>
+    <strong> List of Completed Tasks:</strong>
+    <div id="listOfTasks"></div>
+  </body>
+</html>

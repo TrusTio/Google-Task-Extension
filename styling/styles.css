@@ -1,0 +1,14 @@
+#listOfTasks {
+  width: 300px; /* optional: set a width */
+  height: 150px; /* limit the height */
+  border: 1px solid #ccc;
+  padding: 10px;
+  overflow-y: auto; /* enable vertical scroll */
+  overflow-x: hidden; /* optional: hide horizontal scroll */
+  background-color: #f9f9f9;
+  scroll-behavior: smooth; /* nice smooth scrolling */
+}
+
+.taskName {
+  border: 1px solid #000;
+}
