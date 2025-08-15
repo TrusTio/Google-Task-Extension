@@ -13,7 +13,7 @@ async function getTaskLists(token) {
   return res.json();
 }
 
-async function getTasksFromList(token, listId) {
+async function getTasksFromList(token, listId, nextPageToken) {
   const init = {
     method: "GET",
     headers: {
@@ -22,7 +22,9 @@ async function getTasksFromList(token, listId) {
     },
   };
   const res = await fetch(
-    `https://tasks.googleapis.com/tasks/v1/lists/${listId}/tasks?showCompleted=true&showHidden=true&maxResults=100`,
+    `https://tasks.googleapis.com/tasks/v1/lists/${listId}/tasks?showCompleted=true&showHidden=true&maxResults=100&pageToken=${
+      nextPageToken || ""
+    }`,
     init
   );
   return res.json();

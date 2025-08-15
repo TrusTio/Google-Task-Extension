@@ -1,3 +1,5 @@
+let nextPageToken = null;
+
 window.onload = async function () {
   const token = await getAuthToken();
   if (!token) {
@@ -19,16 +21,41 @@ window.onload = async function () {
   document.querySelector("#groupNames").addEventListener("change", async () => {
     console.log("Group changed");
     try {
+      const listOfTasksDiv = document.querySelector("#listOfTasks");
+      listOfTasksDiv.innerHTML = "";
+      nextPageToken = null; // Reset pagination when changing groups
+
       let select = document.querySelector("#groupNames");
       let selectedListId = select.options[select.selectedIndex].id;
 
       const taskData = await getTasksFromList(token, selectedListId);
+      if (taskData.nextPageToken) {
+        nextPageToken = taskData.nextPageToken;
+      }
 
       renderTasks(taskData);
     } catch (err) {
       console.error("Error getting tasks: ", err);
     }
   });
+
+  document
+    .querySelector("#loadMoreTasksButton")
+    .addEventListener("click", async () => {
+      try {
+        let select = document.querySelector("#groupNames");
+        let selectedListId = select.options[select.selectedIndex].id;
+
+        const taskData = await getTasksFromList(token, selectedListId, nextPageToken);
+        if (taskData.nextPageToken) {
+          nextPageToken = taskData.nextPageToken;
+        }
+
+        renderTasks(taskData);
+      } catch (err) {
+        console.error("Error getting more tasks: ", err);
+      }
+    });
 };
 
 function renderTaskLists(taskLists) {
@@ -47,7 +74,6 @@ function renderTaskLists(taskLists) {
 
 function renderTasks(tasks) {
   const listOfTasksDiv = document.querySelector("#listOfTasks");
-  listOfTasksDiv.innerHTML = "";
   tasks.items.forEach((task) => {
     const p = document.createElement("p");
     p.textContent = task.title;
