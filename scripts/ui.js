@@ -33,10 +33,12 @@ window.onload = async function () {
       const taskData = await getTasksFromList(token, selectedListId);
       if (taskData.nextPageToken) {
         nextPageToken = taskData.nextPageToken;
-        enableLoadMoreButton();
+        setButtonState("loadMoreTasksButton", false, "Load More Tasks");
+        setButtonState("loadAllTasksButton", false, "No more tasks");
       } else {
         nextPageToken = null; // No more pages
-        disableLoadMoreButton();
+        setButtonState("loadMoreTasksButton", true, "No more tasks");
+        setButtonState("loadAllTasksButton", true, "No more tasks");
       }
 
       renderTasks(taskData);
@@ -66,7 +68,7 @@ window.onload = async function () {
           nextPageToken = taskData.nextPageToken;
         } else {
           nextPageToken = null;
-          disableLoadMoreButton();
+          setButtonState("loadMoreTasksButton", true, "No more tasks");
         }
 
         renderTasks(taskData);
@@ -133,14 +135,12 @@ function updateTaskCount() {
   taskCount.textContent = `(${listOfTasksDiv.children.length})`;
 }
 
-function disableLoadMoreButton() {
-  const button = document.querySelector("#loadMoreTasksButton");
-  button.disabled = true;
-  button.textContent = "No more tasks";
-}
-
-function enableLoadMoreButton() {
-  const button = document.querySelector("#loadMoreTasksButton");
-  button.disabled = false;
-  button.textContent = "Load More Tasks";
+function setButtonState(buttonId, disabled, text) {
+  const button = document.querySelector(`#${buttonId}`);
+  if (!button) {
+    console.warn(`Button with id ${buttonId} not found`);
+    return;
+  }
+  button.disabled = disabled;
+  button.textContent = text;
 }
