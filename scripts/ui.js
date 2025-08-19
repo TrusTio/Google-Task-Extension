@@ -85,6 +85,58 @@ window.onload = async function () {
         console.error("Error loading all tasks: ", err);
       });
     });
+
+  document
+    .querySelector("#groupedTaskFilter")
+    .addEventListener("change", async () => {
+      console.log("Grouped task filter changed");
+      try {
+        const listOfTasksDiv = document.querySelector("#groupedTasksList");
+        listOfTasksDiv.innerHTML = "";
+        nextPageToken = null; // Reset pagination when changing groups
+
+        let select = document.querySelector("#groupNames");
+        let selectedListId = select.options[select.selectedIndex].id;
+
+        let selectedFilter = document.querySelector("#groupedTaskFilter");
+        let selectedFilterId =
+          selectedFilter.options[selectedFilter.selectedIndex].id;
+        console.log("Selected filter ID:", selectedFilterId);
+
+        const today = new Date();
+        const todayISOString = today.toISOString();
+        console.log("Today ISO String:", todayISOString);
+        console.log("7 days ago ISO String:", daysAgo(7).toISOString());
+
+        //TODO: needs to be fixed, the parameters are not being passed correctly
+        switch (selectedFilterId) {
+          case "groupedtaskFilter7d":
+            loadTasksForTimeRange(
+              token,
+              selectedListId,
+              daysAgo(7).toISOString(),
+              todayISOString
+            );
+          case "groupedtaskFilter30d":
+            loadTasksForTimeRange(token, selectedListId, {
+              completedMin: todayISOString,
+              completedMax: daysAgo(30).toISOString(),
+            });
+          case "groupedtaskFilter90d":
+            loadTasksForTimeRange(token, selectedListId, {
+              completedMin: todayISOString,
+              completedMax: daysAgo(90).toISOString(),
+            });
+          case "groupedtaskFilter7d":
+            loadTasksForTimeRange(token, selectedListId, {
+              completedMin: todayISOString,
+              completedMax: yearsAgo(1).toISOString(),
+            });
+        }
+      } catch (err) {
+        console.error("Error getting tasks: ", err);
+      }
+    });
 };
 
 function renderTaskLists(taskLists) {
@@ -113,15 +165,19 @@ function renderTasks(tasks) {
   updateTaskCount();
 }
 
+function renderGroupedTasks(tasks) {
+  const listofGroupedTasksDiv = document.querySelector("#groupedTasksList");
+  const groupedTasks = groupTasksByName(tasks.items);
+}
+
+// Loads and renders all tasks from the selected list, handling pagination
 async function loadAllTasks(token) {
   let select = document.querySelector("#groupNames");
   let selectedListId = select.options[select.selectedIndex].id;
   do {
-    const data = await await getTasksFromList(
-      token,
-      selectedListId,
-      nextPageToken
-    );
+    const data = await await getTasksFromList(token, selectedListId, {
+      nextPageToken,
+    });
     renderTasks(data || []);
     await new Promise(requestAnimationFrame);
 
@@ -129,18 +185,32 @@ async function loadAllTasks(token) {
   } while (nextPageToken);
 }
 
+//TODO: needs to be fixed, the parameters are not being passed correctly
+async function loadTasksForTimeRange(token, completedMin, completedMax) {
+  let select = document.querySelector("#groupNames");
+  let selectedListId = select.options[select.selectedIndex].id;
+
+  let allTasks = [];
+  let nextPageToken = null; // Reset pagination for new time range
+  do {
+    const data = await await getTasksFromList(token, selectedListId, {
+      nextPageToken,
+      completedMin,
+      completedMax,
+    });
+
+    if (data.items & (data.items.length > 0)) {
+      allTasks.push(...data.items);
+    }
+
+    nextPageToken = data.nextPageToken || null;
+  } while (nextPageToken);
+
+  console.log(allTasks);
+}
+
 function updateTaskCount() {
   const taskCount = document.querySelector("#taskCount");
   const listOfTasksDiv = document.querySelector("#listOfTasks");
   taskCount.textContent = `(${listOfTasksDiv.children.length})`;
-}
-
-function setButtonState(buttonId, disabled, text) {
-  const button = document.querySelector(`#${buttonId}`);
-  if (!button) {
-    console.warn(`Button with id ${buttonId} not found`);
-    return;
-  }
-  button.disabled = disabled;
-  button.textContent = text;
 }

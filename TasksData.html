@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="styling/styles.css" />
     <script type="text/javascript" src="scripts/oauth.js" defer></script>
     <script type="text/javascript" src="scripts/tasksApi.js" defer></script>
+    <script type="text/javascript" src="scripts/helper.js" defer></script>
     <script type="text/javascript" src="scripts/ui.js" defer></script>
   </head>
 
@@ -17,10 +18,31 @@
     <select name="groupNames" id="groupNames"></select>
 
     <div>
-      <p><strong> List of Completed Tasks <span id="taskCount"></span>:</strong></p>
+      <p>
+        <strong> List of Completed Tasks <span id="taskCount"></span>:</strong>
+      </p>
       <div id="listOfTasks"></div>
-      <button id="loadMoreTasksButton" >Load More Tasks</button>
+      <button id="loadMoreTasksButton">Load More Tasks</button>
       <button id="loadAllTasksButton">Load All Tasks</button>
+    </div>
+
+    <div id="GroupedTasksInfo">
+      <p><strong> Grouped Tasks Information</strong></p>
+      <select name="groupedTaskFilter" id="groupedTaskFilter">
+        <option value="Last 7 Days" id="groupedtaskFilter7d">
+          Last 7 Days
+        </option>
+        <option value="Last 30 Days" id="groupedtaskFilter30d">
+          Last 30 Days
+        </option>
+        <option value="Last 90 Days" id="groupedtaskFilter90d">
+          Last 90 Days
+        </option>
+        <option value="Last 1 Year" id="groupedtaskFilter1y">
+          Last 1 Year
+        </option>
+      </select>
+      <div id="groupedTasksList"></div>
     </div>
   </body>
 </html>

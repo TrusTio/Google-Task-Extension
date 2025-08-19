@@ -13,7 +13,28 @@ async function getTaskLists(token) {
   return res.json();
 }
 
-async function getTasksFromList(token, listId, nextPageToken) {
+async function getTasksFromList(token, listId, options = {}) {
+  const {
+    nextPageToken = "",
+    showCompleted = true,
+    showHidden = true,
+    maxResults = 100,
+    completedMin, // optional ISO string
+    completedMax, // optional ISO string
+  } = options;
+
+  const params = new URLSearchParams({
+    showCompleted,
+    showHidden,
+    maxResults,
+    pageToken: nextPageToken,
+  });
+
+  if (completedMin) params.append("completedMin", completedMin);
+  if (completedMax) params.append("completedMax", completedMax);
+  console.log("Completed Min:", completedMin);
+  console.log("Completed Max:", completedMax);
+
   const init = {
     method: "GET",
     headers: {
@@ -21,11 +42,11 @@ async function getTasksFromList(token, listId, nextPageToken) {
       "Content-Type": "application/json",
     },
   };
+
   const res = await fetch(
-    `https://tasks.googleapis.com/tasks/v1/lists/${listId}/tasks?showCompleted=true&showHidden=true&maxResults=100&pageToken=${
-      nextPageToken || ""
-    }`,
+    `https://tasks.googleapis.com/tasks/v1/lists/${listId}/tasks?${params.toString()}`,
     init
   );
+
   return res.json();
 }
