@@ -52,7 +52,6 @@ window.onload = async function () {
     .querySelector("#loadMoreTasksButton")
     .addEventListener("click", async () => {
       try {
-        console.log(nextPageToken);
         let select = document.querySelector("#groupNames");
         let selectedListId = select.options[select.selectedIndex].id;
 
@@ -62,9 +61,7 @@ window.onload = async function () {
           nextPageToken
         );
 
-        console.log(taskData);
         if (taskData.nextPageToken) {
-          console.log("Next page token:", taskData.nextPageToken);
           nextPageToken = taskData.nextPageToken;
         } else {
           nextPageToken = null;
@@ -101,12 +98,9 @@ window.onload = async function () {
         let selectedFilter = document.querySelector("#groupedTaskFilter");
         let selectedFilterId =
           selectedFilter.options[selectedFilter.selectedIndex].id;
-        console.log("Selected filter ID:", selectedFilterId);
 
         const today = new Date();
         const todayISOString = today.toISOString();
-        console.log("Today ISO String:", todayISOString);
-        console.log("7 days ago ISO String:", daysAgo(7).toISOString());
 
         //TODO: needs to be fixed, the parameters are not being passed correctly
         switch (selectedFilterId) {
@@ -117,21 +111,31 @@ window.onload = async function () {
               daysAgo(7).toISOString(),
               todayISOString
             );
+            break;
           case "groupedtaskFilter30d":
-            loadTasksForTimeRange(token, selectedListId, {
-              completedMin: todayISOString,
-              completedMax: daysAgo(30).toISOString(),
-            });
+            loadTasksForTimeRange(
+              token,
+              selectedListId,
+              daysAgo(30).toISOString(),
+              todayISOString
+            );
+            break;
           case "groupedtaskFilter90d":
-            loadTasksForTimeRange(token, selectedListId, {
-              completedMin: todayISOString,
-              completedMax: daysAgo(90).toISOString(),
-            });
+            loadTasksForTimeRange(
+              token,
+              selectedListId,
+              daysAgo(90).toISOString(),
+              todayISOString
+            );
+            break;
           case "groupedtaskFilter7d":
-            loadTasksForTimeRange(token, selectedListId, {
-              completedMin: todayISOString,
-              completedMax: yearsAgo(1).toISOString(),
-            });
+            loadTasksForTimeRange(
+              token,
+              selectedListId,
+              yearsAgo(1).toISOString(),
+              todayISOString
+            );
+            break;
         }
       } catch (err) {
         console.error("Error getting tasks: ", err);
@@ -167,7 +171,13 @@ function renderTasks(tasks) {
 
 function renderGroupedTasks(tasks) {
   const listofGroupedTasksDiv = document.querySelector("#groupedTasksList");
-  const groupedTasks = groupTasksByName(tasks.items);
+  const groupedTasks = groupTasksByName(tasks);
+  groupedTasks.forEach((count, name) => {
+    const p = document.createElement("p");
+    p.textContent = name + " (" + count + ")";
+    p.classList.add("taskName");
+    listofGroupedTasksDiv.appendChild(p);
+  });
 }
 
 // Loads and renders all tasks from the selected list, handling pagination
@@ -185,28 +195,34 @@ async function loadAllTasks(token) {
   } while (nextPageToken);
 }
 
-//TODO: needs to be fixed, the parameters are not being passed correctly
-async function loadTasksForTimeRange(token, completedMin, completedMax) {
-  let select = document.querySelector("#groupNames");
-  let selectedListId = select.options[select.selectedIndex].id;
-
+async function loadTasksForTimeRange(
+  token,
+  selectedListId,
+  completedMin,
+  completedMax
+) {
   let allTasks = [];
   let nextPageToken = null; // Reset pagination for new time range
   do {
-    const data = await await getTasksFromList(token, selectedListId, {
-      nextPageToken,
-      completedMin,
-      completedMax,
+    const data = await getTasksFromList(token, selectedListId, {
+      nextPageToken: nextPageToken,
+      completedMin: completedMin,
+      completedMax: completedMax,
     });
 
-    if (data.items & (data.items.length > 0)) {
+    if (data.items && data.items.length > 0) {
       allTasks.push(...data.items);
     }
 
+    console.log(data);
     nextPageToken = data.nextPageToken || null;
   } while (nextPageToken);
 
-  console.log(allTasks);
+  console.log(
+    "All task titles:",
+    allTasks.map((t) => t.title)
+  );
+  renderGroupedTasks(allTasks);
 }
 
 function updateTaskCount() {

@@ -8,7 +8,6 @@ function setButtonState(buttonId, disabled, text) {
   button.textContent = text;
 }
 
-
 function daysAgo(n) {
   const date = new Date();
   date.setDate(date.getDate() - n);
@@ -22,9 +21,11 @@ function yearsAgo(n) {
 }
 
 function groupTasksByName(tasks) {
+
   const taskMap = new Map();
 
   tasks.forEach((task) => {
+    console.log("Grouping task:", task.title, task.id);
     const name = task.title;
     if (taskMap.has(name)) {
       taskMap.set(name, taskMap.get(name) + 1);
@@ -33,8 +34,5 @@ function groupTasksByName(tasks) {
     }
   });
 
-  // Convert to 2D array: [ [name, count], [name, count], ... ]
-  const groupedArray = Array.from(taskMap, ([name, count]) => [name, count]);
-
-  return groupedArray;
+  return taskMap;
 }

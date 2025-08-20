@@ -27,13 +27,11 @@ async function getTasksFromList(token, listId, options = {}) {
     showCompleted,
     showHidden,
     maxResults,
-    pageToken: nextPageToken,
+    pageToken: nextPageToken || "",
   });
 
   if (completedMin) params.append("completedMin", completedMin);
   if (completedMax) params.append("completedMax", completedMax);
-  console.log("Completed Min:", completedMin);
-  console.log("Completed Max:", completedMax);
 
   const init = {
     method: "GET",
